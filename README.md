@@ -15,3 +15,4 @@ Microcontroller Packages
  - Adafruit GFX and SSD1306 libs (platformio.ini file takes care of this for you)
 
 
+![alt text](https://github.com/Hexadecimator/CPU_GPU_TEMP_MINI_DISPLAY/blob/main/WORKING_REV1.jpg?raw=true)
