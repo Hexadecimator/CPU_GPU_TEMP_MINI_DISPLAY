@@ -51,7 +51,7 @@ namespace CPU_GPU_TEMP_MINI_DISPLAY
             // Populate a list of active serial ports:
             string[] COMports = SerialPort.GetPortNames();
             Array.Sort(COMports);
-            
+
             using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Caption like '%(COM%'"))
             {
                 var portnames = SerialPort.GetPortNames();
@@ -64,12 +64,27 @@ namespace CPU_GPU_TEMP_MINI_DISPLAY
                     //Console.WriteLine(s);
                     cbSERIALPORTS.Items.Add(s);
                 }
+
+                foreach (string s in cbSERIALPORTS.Items)
+                {
+                    if(s.Contains("CP210x")) // find CP2102 interfacing microcontroller
+                    {
+                        cbSERIALPORTS.SelectedItem = s;
+                        if (_SP.IsOpen) _SP.Close();
+                        _SP.PortName = s.Substring(0, 4);
+                        _SP.Open();
+                        break;
+                    }
+                }
             }
 
             refresh_temps_timer = new System.Timers.Timer(2000);
             refresh_temps_timer.Elapsed += OnTimedEvent;
             refresh_temps_timer.AutoReset = true;
             refresh_temps_timer.Enabled = true;
+
+            // auto connect to COM port named Silicon Labs CP210x
+            
         }
 
         private static void OnTimedEvent(Object source, ElapsedEventArgs e)
@@ -256,6 +271,7 @@ namespace CPU_GPU_TEMP_MINI_DISPLAY
 
         private void Form1_Resize(object sender, EventArgs e)
         {
+            // hide the window to taskbar when minimized
             if (this.WindowState == FormWindowState.Minimized)
             {
                 Hide();
@@ -265,6 +281,7 @@ namespace CPU_GPU_TEMP_MINI_DISPLAY
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
+            // restore the app from taskbar to normal window
             Show();
             this.WindowState = FormWindowState.Normal;
             notifyIcon1.Visible = false;
